@@ -33,23 +33,12 @@ A **database view (`booking_report`)** is used to generate booking reports by jo
 | POST   | /register | Register a new user |
 | POST   | /login    | Login user          |
 
-### Hotels
-
-| Method | Endpoint    | Description       |
-| ------ | ----------- | ----------------- |
-| GET    | /hotels     | Get all hotels    |
-| GET    | /hotels/:id | Get hotel details |
-| POST   | /hotels     | Create a hotel    |
-| PUT    | /hotels/:id | Update hotel      |
-| DELETE | /hotels/:id | Delete hotel      |
-
 ### Rooms
 
 | Method | Endpoint          | Description        |
 | ------ | ----------------- | ------------------ |
 | GET    | /rooms            | Get all rooms      |
 | GET    | /rooms/:id        | Get room details   |
-| GET    | /hotels/:id/rooms | Get rooms by hotel |
 | POST   | /rooms            | Create room        |
 | PUT    | /rooms/:id        | Update room        |
 | DELETE | /rooms/:id        | Delete room        |
@@ -61,7 +50,7 @@ A **database view (`booking_report`)** is used to generate booking reports by jo
 | POST   | /bookings           | Create booking           |
 | GET    | /bookings           | Get all bookings         |
 | GET    | /bookings/:id       | Get booking details      |
-| GET    | /users/:id/bookings | Get user booking history |
+| PUT    | /bookings/:id       | Update booking details   |
 | DELETE | /bookings/:id       | Cancel booking           |
 
 ### Reports
@@ -78,3 +67,4 @@ A **database view (`booking_report`)** is used to generate booking reports by jo
 * **Database:** PostgreSQL
 
 ---
+
