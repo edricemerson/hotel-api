@@ -75,7 +75,7 @@ func (h *UserHandler) Login(c echo.Context) error {
 		})
 	}
 
-	token, err := util.GenerateJWT(user.ID, user.Email)
+	token, err := util.GenerateJWT(user.ID, user.Email, user.Role)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{
 			"error": "failed to generate token",

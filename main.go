@@ -6,6 +6,7 @@ import (
 
 	"hotel-api/handler"
 	"hotel-api/repository"
+	"hotel-api/service/room"
 	"hotel-api/service/user"
 	"hotel-api/util"
 
@@ -16,14 +17,35 @@ func main() {
 	// connect database
 	db := util.ConnectDB()
 
-	repo := repository.NewGormRepository(db)
-	service := user.NewService(repo)
-	handler := handler.NewUserHandler(service)
+	userRepo := repository.NewGormRepository(db)
+	userService := user.NewService(userRepo)
+	userHandler := handler.NewUserHandler(userService)
+
+	roomRepo := repository.NewRoomRepository(db)
+	roomService := room.NewService(roomRepo)
+	roomHandler := handler.NewRoomHandler(roomService)
 
 	e := echo.New()
 
-	e.POST("/register", handler.Register)
-	e.POST("/login", handler.Login)
+	//public route
+	e.POST("/register", userHandler.Register)
+	e.POST("/login", userHandler.Login)
+
+	// admin route
+	admin := e.Group("")
+	admin.Use(util.JWTMiddleware)
+	admin.Use(util.AdminOnly)
+
+	admin.POST("/rooms", roomHandler.CreateRoom)
+	admin.PUT("/rooms/:id", roomHandler.UpdateRoom)
+	admin.DELETE("/rooms/:id", roomHandler.DeleteRoom)
+
+	// authenticated route
+	auth := e.Group("")
+	auth.Use(util.JWTMiddleware)
+
+	auth.GET("/rooms", roomHandler.GetRooms)
+	auth.GET("/rooms/:id", roomHandler.GetRoomByID)
 
 	port := os.Getenv("PORT")
 

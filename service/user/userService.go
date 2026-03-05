@@ -58,6 +58,7 @@ func (s *service) Register(name string, email string, password string, phone str
 		Email:    email,
 		Password: string(hashedPassword),
 		Phone:    phone,
+		Role:     "user",
 	}
 
 	err = s.repo.Create(&user)

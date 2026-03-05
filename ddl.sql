@@ -1,26 +1,16 @@
 CREATE TABLE project_users (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
+    name VARCHAR(100) UNIQUE NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     password TEXT NOT NULL,
-    phone VARCHAR(20),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE project_hotels (
-    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    name VARCHAR(150) NOT NULL,
-    location VARCHAR(200) NOT NULL,
-    description TEXT,
-    rating DECIMAL(2,1),
+    phone VARCHAR(20) UNIQUE,
+    role VARCHAR(20) DEFAULT 'user',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE project_rooms (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    hotel_id INT NOT NULL,
     room_number VARCHAR(20) NOT NULL,
     room_type VARCHAR(50),
     price DECIMAL(10,2) NOT NULL,
@@ -28,10 +18,6 @@ CREATE TABLE project_rooms (
     status VARCHAR(20) DEFAULT 'available',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    FOREIGN KEY (hotel_id)
-    REFERENCES project_hotels(id)
-    ON DELETE CASCADE
 );
 
 CREATE TABLE project_bookings (
@@ -84,9 +70,7 @@ SELECT
 FROM project_bookings b
 JOIN project_users u ON b.user_id = u.id
 JOIN project_rooms r ON b.room_id = r.id
-JOIN project_hotels h ON r.hotel_id = h.id;
 
 CREATE INDEX idx_user_email ON project_users(email);
-CREATE INDEX idx_rooms_hotel_id ON project_rooms(hotel_id);
 CREATE INDEX idx_booking_user_id ON project_bookings(user_id);
 CREATE INDEX idx_booking_room_id ON project_bookings(room_id);
