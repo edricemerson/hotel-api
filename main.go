@@ -46,6 +46,8 @@ func main() {
 
 	auth.GET("/rooms", roomHandler.GetRooms)
 	auth.GET("/rooms/:id", roomHandler.GetRoomByID)
+	auth.POST("", bookingHandler.CreateBooking)
+	auth.GET("", bookingHandler.GetMyBookings)
 
 	port := os.Getenv("PORT")
 

@@ -74,3 +74,18 @@ JOIN project_rooms r ON b.room_id = r.id
 CREATE INDEX idx_user_email ON project_users(email);
 CREATE INDEX idx_booking_user_id ON project_bookings(user_id);
 CREATE INDEX idx_booking_room_id ON project_bookings(room_id);
+
+-- data seeding for rooms
+INSERT INTO project_rooms (room_number, room_type, price, capacity, status)
+VALUES
+('101', 'Deluxe', 200.00, 2, 'available'),
+('102', 'Deluxe', 200.00, 2, 'unavailable'),
+('103', 'Deluxe', 200.00, 2, 'available'),
+
+('201', 'Suites', 350.00, 4, 'available'),
+('202', 'Suites', 350.00, 4, 'available'),
+('203', 'Suites', 350.00, 4, 'unavailable'),
+
+('301', 'Presidential', 800.00, 6, 'available'),
+('302', 'Presidential', 800.00, 6, 'available'),
+('303', 'Presidential', 800.00, 6, 'unavailable');

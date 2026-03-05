@@ -16,7 +16,7 @@ func JWTMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 
 		if tokenString == "" {
 			return c.JSON(http.StatusUnauthorized, map[string]string{
-				"error": "missing token",
+				"error": "Bearer token invalid",
 			})
 		}
 
@@ -44,9 +44,26 @@ func AdminOnly(next echo.HandlerFunc) echo.HandlerFunc {
 
 	return func(c echo.Context) error {
 
-		user := c.Get("user").(map[string]interface{})
+		user := c.Get("user")
+		if user == nil {
+			return c.JSON(http.StatusUnauthorized, map[string]string{
+				"error": "user not found in token",
+			})
+		}
 
-		role := user["role"].(string)
+		claims, ok := user.(jwt.MapClaims)
+		if !ok {
+			return c.JSON(http.StatusUnauthorized, map[string]string{
+				"error": "invalid token claims",
+			})
+		}
+
+		role, ok := claims["role"].(string)
+		if !ok {
+			return c.JSON(http.StatusUnauthorized, map[string]string{
+				"error": "role missing in token",
+			})
+		}
 
 		if role != "admin" {
 			return c.JSON(http.StatusForbidden, map[string]string{

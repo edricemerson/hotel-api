@@ -53,16 +53,16 @@ func (h *RoomHandler) CreateRoom(c echo.Context) error {
 		})
 	}
 
-	err := h.service.Create(room)
+	err := h.service.Create(&room)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{
+		return c.JSON(http.StatusBadRequest, map[string]string{
 			"error": err.Error(),
 		})
 	}
 
 	return c.JSON(http.StatusCreated, map[string]interface{}{
 		"message": "room created successfully",
-		"room":    room,
+		"data":    room,
 	})
 }
 
@@ -85,8 +85,16 @@ func (h *RoomHandler) UpdateRoom(c echo.Context) error {
 		})
 	}
 
-	return c.JSON(http.StatusOK, map[string]string{
+	updatedRoom, err := h.service.GetRoomByID(id)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{
+			"error": "failed to fetch updated room",
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message": "room updated successfully",
+		"data":    updatedRoom,
 	})
 }
 

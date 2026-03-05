@@ -5,6 +5,7 @@ import (
 )
 
 type Repository interface {
+	FindByRoomNumber(roomNumber string) (entity.Room, error)
 	FindAll() ([]entity.Room, error)
 	FindByID(id string) (entity.Room, error)
 	Create(room *entity.Room) error

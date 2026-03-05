@@ -16,11 +16,24 @@ func NewRoomRepository(db *gorm.DB) *RoomRepository {
 	return &RoomRepository{db.Table("project_rooms")}
 }
 
+func (r *RoomRepository) FindByRoomNumber(roomNumber string) (entity.Room, error) {
+
+	var room entity.Room
+
+	err := r.DB.WithContext(context.Background()).
+		Where("room_number = ?", roomNumber).
+		First(&room).
+		Error
+
+	return room, err
+}
+
 func (r *RoomRepository) FindAll() ([]entity.Room, error) {
 
 	var rooms []entity.Room
 
 	err := r.DB.WithContext(context.Background()).
+		Where("status = ?", "available").
 		Find(&rooms).
 		Error
 

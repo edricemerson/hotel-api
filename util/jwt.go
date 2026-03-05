@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 )
 
 func GenerateJWT(userID int, email string, role string) (string, error) {
@@ -14,6 +15,8 @@ func GenerateJWT(userID int, email string, role string) (string, error) {
 		"email":   email,
 		"role":    role,
 		"exp":     time.Now().Add(24 * time.Hour).Unix(),
+		"iat":     time.Now().Unix(),
+		"jti":     uuid.New().String(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
