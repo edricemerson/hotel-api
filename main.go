@@ -2,9 +2,11 @@ package main
 
 import (
 	"log"
-	"net/http"
 	"os"
 
+	"hotel-api/handler"
+	"hotel-api/repository"
+	"hotel-api/service/user"
 	"hotel-api/util"
 
 	"github.com/labstack/echo/v4"
@@ -12,15 +14,16 @@ import (
 
 func main() {
 	// connect database
-	util.ConnectDB()
+	db := util.ConnectDB()
+
+	repo := repository.NewGormRepository(db)
+	service := user.NewService(repo)
+	handler := handler.NewUserHandler(service)
 
 	e := echo.New()
 
-	e.GET("/", func(c echo.Context) error {
-		return c.JSON(http.StatusOK, map[string]string{
-			"message": "Testing API",
-		})
-	})
+	e.POST("/register", handler.Register)
+	e.POST("/login", handler.Login)
 
 	port := os.Getenv("PORT")
 

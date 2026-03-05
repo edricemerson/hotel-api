@@ -1,36 +1,34 @@
 package util
 
 import (
-	"database/sql"
 	"log"
 	"os"
 
 	"github.com/joho/godotenv"
-	_ "github.com/lib/pq"
+
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
-var DB *sql.DB
-
-func ConnectDB() {
+func ConnectDB() *gorm.DB {
 
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal("Error in env file")
+		log.Fatal("Error env")
 	}
 
-	dbURL := os.Getenv("DB_URL")
+	dsn := os.Getenv("DB_URL")
 
-	db, err := sql.Open("postgres", dbURL)
+	db, err := gorm.Open(postgres.New(postgres.Config{
+		DSN:                  dsn,
+		PreferSimpleProtocol: true,
+	}), &gorm.Config{})
+
 	if err != nil {
-		log.Fatal("Failed to connect:", err)
+		log.Fatal("fail connect:", err)
 	}
 
-	err = db.Ping()
-	if err != nil {
-		log.Fatal("Not reachable:", err)
-	}
+	log.Println("Connected")
 
-	log.Println("Connected successfully")
-
-	DB = db
+	return db
 }
