@@ -2,7 +2,7 @@
 // @version 1.0
 // @description A comprehensive Hotel Management API with user authentication, room management, and booking system
 // @host
-// @basePath /api
+// @basePath /
 // @securityDefinitions.apikey Bearer
 // @in header
 // @name Authorization
