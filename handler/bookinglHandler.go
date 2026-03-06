@@ -20,6 +20,17 @@ func NewBookingHandler(s booking.Service) *BookingHandler {
 	return &BookingHandler{s}
 }
 
+// @Summary Create a new booking
+// @Description Book a room for specified check-in and check-out dates (requires authentication)
+// @Tags bookings
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param request body entity.BookingRequest true "Booking details with RoomID, CheckIn (YYYY-MM-DD), CheckOut (YYYY-MM-DD)"
+// @Success 201 {object} map[string]interface{} "Booking created successfully"
+// @Failure 400 {object} map[string]string "Invalid request body or date format"
+// @Failure 401 {object} map[string]string "Unauthorized - invalid or missing token"
+// @Router /bookings [post]
 func (h *BookingHandler) CreateBooking(c echo.Context) error {
 
 	var req entity.BookingRequest
@@ -94,6 +105,16 @@ func (h *BookingHandler) CreateBooking(c echo.Context) error {
 	})
 }
 
+// @Summary Get all user bookings
+// @Description Retrieve all bookings for the authenticated user
+// @Tags bookings
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Success 200 {object} map[string]interface{} "List of user bookings"
+// @Failure 401 {object} map[string]string "Unauthorized - invalid or missing token"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /bookings [get]
 func (h *BookingHandler) GetMyBookings(c echo.Context) error {
 
 	claims := c.Get("user").(jwt.MapClaims)
@@ -126,6 +147,15 @@ func (h *BookingHandler) GetMyBookings(c echo.Context) error {
 	})
 }
 
+// @Summary Get booking by ID
+// @Description Retrieve details of a specific booking
+// @Tags bookings
+// @Accept json
+// @Produce json
+// @Param id path string true "Booking ID"
+// @Success 200 {object} map[string]interface{} "Booking details retrieved successfully"
+// @Failure 404 {object} map[string]string "Booking not found"
+// @Router /bookings/{id} [get]
 func (h *BookingHandler) GetBookingByID(c echo.Context) error {
 
 	id := c.Param("id")
@@ -142,6 +172,18 @@ func (h *BookingHandler) GetBookingByID(c echo.Context) error {
 	})
 }
 
+// @Summary Update a booking
+// @Description Update booking details (check-in, check-out dates)
+// @Tags bookings
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path string true "Booking ID"
+// @Param request body entity.Booking true "Updated booking details"
+// @Success 200 {object} map[string]string "Booking updated successfully"
+// @Failure 400 {object} map[string]string "Invalid request body"
+// @Failure 401 {object} map[string]string "Unauthorized - invalid or missing token"
+// @Router /bookings/{id} [put]
 func (h *BookingHandler) UpdateBooking(c echo.Context) error {
 
 	id := c.Param("id")
@@ -166,6 +208,17 @@ func (h *BookingHandler) UpdateBooking(c echo.Context) error {
 	})
 }
 
+// @Summary Delete a booking
+// @Description Cancel an existing booking
+// @Tags bookings
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path string true "Booking ID"
+// @Success 200 {object} map[string]string "Booking deleted successfully"
+// @Failure 400 {object} map[string]string "Failed to delete booking"
+// @Failure 401 {object} map[string]string "Unauthorized - invalid or missing token"
+// @Router /bookings/{id} [delete]
 func (h *BookingHandler) DeleteBooking(c echo.Context) error {
 
 	id := c.Param("id")

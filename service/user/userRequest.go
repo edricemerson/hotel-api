@@ -11,4 +11,5 @@ type Repository interface {
 	FindByEmail(email string) (user entity.User, err error)
 	FindByPhone(phone string) (entity.User, error)
 	FindByName(name string) (entity.User, error)
+	FindByID(id string) (entity.User, error)
 }

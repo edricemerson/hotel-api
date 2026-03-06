@@ -18,17 +18,26 @@ func NewUserHandler(s user.Service) *UserHandler {
 }
 
 type RegisterRequest struct {
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
-	Phone    string `json:"phone"`
+	Name     string `json:"name" example:"John Doe"`
+	Email    string `json:"email" example:"john@example.com"`
+	Password string `json:"password" example:"password123"`
+	Phone    string `json:"phone" example:"+1234567890"`
 }
 
 type LoginRequest struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Email    string `json:"email" example:"john@example.com"`
+	Password string `json:"password" example:"password123"`
 }
 
+// @Summary Register a new user
+// @Description Create a new user account with name, email, password and phone
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param request body RegisterRequest true "User registration details"
+// @Success 201 {object} map[string]interface{} "User registered successfully"
+// @Failure 400 {object} map[string]string "Invalid request body or user already exists"
+// @Router /users/register [post]
 func (h *UserHandler) Register(c echo.Context) error {
 
 	var req RegisterRequest
@@ -58,6 +67,17 @@ func (h *UserHandler) Register(c echo.Context) error {
 	})
 }
 
+// @Summary User login
+// @Description Authenticate user with email and password, returns JWT token
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param request body LoginRequest true "Login credentials"
+// @Success 200 {object} map[string]interface{} "Login successful with JWT token"
+// @Failure 400 {object} map[string]string "Invalid request body"
+// @Failure 401 {object} map[string]string "Invalid email or password"
+// @Failure 500 {object} map[string]string "Failed to generate token"
+// @Router /users/login [post]
 func (h *UserHandler) Login(c echo.Context) error {
 
 	var req LoginRequest

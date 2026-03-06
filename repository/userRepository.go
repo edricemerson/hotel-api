@@ -58,3 +58,14 @@ func (r *GormRepository) FindByName(name string) (u entity.User, err error) {
 
 	return
 }
+
+func (r *GormRepository) FindByID(id string) (u entity.User, err error) {
+	ctx := context.Background()
+
+	err = r.DB.WithContext(ctx).
+		Where("id = ?", id).
+		First(&u).
+		Error
+
+	return
+}

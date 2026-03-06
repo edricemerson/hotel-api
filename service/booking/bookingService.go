@@ -2,14 +2,18 @@ package booking
 
 import (
 	"errors"
+	"fmt"
 	"hotel-api/entity"
 	"hotel-api/service/room"
+	"hotel-api/service/user"
+	"hotel-api/util"
 	"strconv"
 )
 
 type service struct {
 	repo     Repository
 	roomRepo room.Repository
+	userRepo user.Repository
 }
 
 type Service interface {
@@ -20,10 +24,11 @@ type Service interface {
 	DeleteBooking(id string) error
 }
 
-func NewService(r Repository, roomRepo room.Repository) Service {
+func NewService(r Repository, roomRepo room.Repository, userRepo user.Repository) Service {
 	return &service{
 		repo:     r,
 		roomRepo: roomRepo,
+		userRepo: userRepo,
 	}
 }
 
@@ -57,13 +62,30 @@ func (s *service) CreateBooking(booking *entity.Booking) error {
 	}
 
 	booking.TotalPrice = float64(nights) * roomData.Price
-
 	booking.BookingStatus = "confirmed"
 
 	err = s.repo.CreateBooking(booking)
 	if err != nil {
 		return err
 	}
+
+	user, err := s.userRepo.FindByID(strconv.Itoa(booking.UserID))
+	if err != nil {
+		return err
+	}
+
+	util.SendEmail(
+		user.Email,
+		"Booking Confirmation",
+		fmt.Sprintf(
+			"Your booking is confirmed!\n\nRoom Number: %s\nRoom Type: %s\nCheck-in: %s\nCheck-out: %s\nTotal Price: %.2f",
+			roomData.RoomNumber,
+			roomData.RoomType,
+			booking.CheckIn.Format("2006-01-02"),
+			booking.CheckOut.Format("2006-01-02"),
+			booking.TotalPrice,
+		),
+	)
 
 	room := entity.Room{
 		Status: "unavailable",

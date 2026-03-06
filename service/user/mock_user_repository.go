@@ -92,3 +92,10 @@ func (mr *MockRepositoryMockRecorder) FindByPhone(phone interface{}) *gomock.Cal
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByPhone", reflect.TypeOf((*MockRepository)(nil).FindByPhone), phone)
 }
+
+func (m *MockRepository) FindByID(id string) (entity.User, error) {
+	return entity.User{
+		ID:    1,
+		Email: "test@mail.com",
+	}, nil
+}
