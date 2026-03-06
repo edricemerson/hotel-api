@@ -2,6 +2,8 @@ package handler
 
 import (
 	"net/http"
+	"strconv"
+	"time"
 
 	"hotel-api/entity"
 	"hotel-api/service/booking"
@@ -20,11 +22,25 @@ func NewBookingHandler(s booking.Service) *BookingHandler {
 
 func (h *BookingHandler) CreateBooking(c echo.Context) error {
 
-	var booking entity.Booking
+	var req entity.BookingRequest
 
-	if err := c.Bind(&booking); err != nil {
+	if err := c.Bind(&req); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{
 			"error": "invalid request body",
+		})
+	}
+
+	checkIn, err := time.Parse("2006-01-02", req.CheckIn)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"error": "invalid check_in format (use YYYY-MM-DD)",
+		})
+	}
+
+	checkOut, err := time.Parse("2006-01-02", req.CheckOut)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"error": "invalid check_out format (use YYYY-MM-DD)",
 		})
 	}
 
@@ -42,7 +58,7 @@ func (h *BookingHandler) CreateBooking(c echo.Context) error {
 		})
 	}
 
-	idValue, ok := claims["user_id"] // FIXED HERE
+	idValue, ok := claims["user_id"]
 	if !ok {
 		return c.JSON(http.StatusUnauthorized, map[string]string{
 			"error": "user id missing in token",
@@ -51,25 +67,52 @@ func (h *BookingHandler) CreateBooking(c echo.Context) error {
 
 	userID := int(idValue.(float64))
 
-	booking.UserID = userID
+	booking := entity.Booking{
+		UserID:   userID,
+		RoomID:   req.RoomID,
+		CheckIn:  checkIn,
+		CheckOut: checkOut,
+	}
 
-	err := h.service.CreateBooking(&booking)
+	err = h.service.CreateBooking(&booking)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{
 			"error": err.Error(),
 		})
 	}
 
+	bookingWithRoom, err := h.service.GetBookingByID(strconv.Itoa(booking.ID))
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{
+			"error": "failed to load booking data",
+		})
+	}
+
 	return c.JSON(http.StatusCreated, map[string]interface{}{
 		"message": "booking created successfully",
-		"data":    booking,
+		"data":    bookingWithRoom,
 	})
 }
 
 func (h *BookingHandler) GetMyBookings(c echo.Context) error {
 
 	claims := c.Get("user").(jwt.MapClaims)
-	userID := int(claims["id"].(float64))
+
+	idValue, ok := claims["user_id"]
+	if !ok {
+		return c.JSON(http.StatusUnauthorized, map[string]string{
+			"error": "user id missing in token",
+		})
+	}
+
+	userIDFloat, ok := idValue.(float64)
+	if !ok {
+		return c.JSON(http.StatusUnauthorized, map[string]string{
+			"error": "invalid user id format",
+		})
+	}
+
+	userID := int(userIDFloat)
 
 	bookings, err := h.service.GetMyBookings(userID)
 	if err != nil {

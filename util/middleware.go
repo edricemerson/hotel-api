@@ -12,17 +12,28 @@ func JWTMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 
 	return func(c echo.Context) error {
 
-		tokenString := c.Request().Header.Get("Authorization")
+		authHeader := c.Request().Header.Get("Authorization")
 
-		if tokenString == "" {
+		if authHeader == "" {
 			return c.JSON(http.StatusUnauthorized, map[string]string{
-				"error": "Bearer token invalid",
+				"error": "authorization header missing",
 			})
 		}
 
-		tokenString = tokenString[7:]
+		if len(authHeader) < 7 || authHeader[:7] != "Bearer " {
+			return c.JSON(http.StatusUnauthorized, map[string]string{
+				"error": "invalid authorization format",
+			})
+		}
+
+		tokenString := authHeader[7:]
 
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+
+			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, echo.NewHTTPError(http.StatusUnauthorized, "unexpected signing method")
+			}
+
 			return []byte(os.Getenv("JWT_SECRET")), nil
 		})
 
@@ -32,7 +43,12 @@ func JWTMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 			})
 		}
 
-		claims := token.Claims.(jwt.MapClaims)
+		claims, ok := token.Claims.(jwt.MapClaims)
+		if !ok {
+			return c.JSON(http.StatusUnauthorized, map[string]string{
+				"error": "invalid token claims",
+			})
+		}
 
 		c.Set("user", claims)
 

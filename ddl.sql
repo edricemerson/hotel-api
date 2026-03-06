@@ -40,37 +40,6 @@ CREATE TABLE project_bookings (
     ON DELETE CASCADE
 );
 
-CREATE TABLE project_booking_payments (
-    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    booking_id INT NOT NULL,
-    payment_method VARCHAR(50),
-    payment_status VARCHAR(20) DEFAULT 'pending',
-    amount DECIMAL(10,2) NOT NULL,
-    paid_at TIMESTAMP,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    FOREIGN KEY (booking_id)
-    REFERENCES project_bookings(id)
-    ON DELETE CASCADE
-);
-
-CREATE VIEW project_booking_report AS
-SELECT
-    b.id AS booking_id,
-    u.name AS user_name,
-    u.email,
-    h.name AS hotel_name,
-    r.room_number,
-    r.room_type,
-    b.check_in,
-    b.check_out,
-    b.total_price,
-    b.booking_status,
-    b.created_at
-FROM project_bookings b
-JOIN project_users u ON b.user_id = u.id
-JOIN project_rooms r ON b.room_id = r.id
-
 CREATE INDEX idx_user_email ON project_users(email);
 CREATE INDEX idx_booking_user_id ON project_bookings(user_id);
 CREATE INDEX idx_booking_room_id ON project_bookings(room_id);

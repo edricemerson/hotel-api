@@ -33,12 +33,16 @@ func (s *service) CreateBooking(booking *entity.Booking) error {
 		return errors.New("check_out must be after check_in")
 	}
 
+	roomData, err := s.roomRepo.FindByID(strconv.Itoa(booking.RoomID))
+	if err != nil {
+		return errors.New("room not found")
+	}
+
 	available, err := s.repo.CheckRoomAvailability(
 		booking.RoomID,
 		booking.CheckIn,
 		booking.CheckOut,
 	)
-
 	if err != nil {
 		return err
 	}
@@ -46,6 +50,13 @@ func (s *service) CreateBooking(booking *entity.Booking) error {
 	if !available {
 		return errors.New("room already booked for selected dates")
 	}
+
+	nights := int(booking.CheckOut.Sub(booking.CheckIn).Hours() / 24)
+	if nights <= 0 {
+		return errors.New("invalid booking duration")
+	}
+
+	booking.TotalPrice = float64(nights) * roomData.Price
 
 	booking.BookingStatus = "confirmed"
 
@@ -58,12 +69,10 @@ func (s *service) CreateBooking(booking *entity.Booking) error {
 		Status: "unavailable",
 	}
 
-	err = s.roomRepo.Update(
+	return s.roomRepo.Update(
 		strconv.Itoa(booking.RoomID),
 		&room,
 	)
-
-	return err
 }
 
 func (s *service) GetMyBookings(userID int) ([]entity.Booking, error) {
@@ -84,5 +93,24 @@ func (s *service) UpdateBooking(id string, booking *entity.Booking) error {
 }
 
 func (s *service) DeleteBooking(id string) error {
-	return s.repo.DeleteBooking(id)
+	booking, err := s.repo.GetBookingByID(id)
+	if err != nil {
+		return err
+	}
+
+	err = s.repo.DeleteBooking(id)
+	if err != nil {
+		return err
+	}
+
+	room := entity.Room{
+		Status: "available",
+	}
+
+	err = s.roomRepo.Update(
+		strconv.Itoa(booking.RoomID),
+		&room,
+	)
+
+	return err
 }

@@ -16,3 +16,13 @@ type Booking struct {
 
 	Room Room `gorm:"foreignKey:RoomID" json:"room"`
 }
+
+func (Booking) TableName() string {
+	return "project_bookings"
+}
+
+type BookingRequest struct {
+	RoomID   int    `json:"room_id"`
+	CheckIn  string `json:"check_in"`
+	CheckOut string `json:"check_out"`
+}
