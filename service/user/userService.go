@@ -2,9 +2,11 @@ package user
 
 import (
 	"errors"
+	"fmt"
 	"regexp"
 
 	"hotel-api/entity"
+	"hotel-api/util"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -64,6 +66,19 @@ func (s *service) Register(name string, email string, password string, phone str
 	err = s.repo.Create(&user)
 	if err != nil {
 		return entity.User{}, err
+	}
+
+	err = util.SendEmail(
+		user.Email,
+		"Welcome to Hotel API",
+		fmt.Sprintf(
+			"Hello %s!\n\nYour account has been successfully created.\n\nYou can now login and start booking rooms.\n\nEnjoy your stay!",
+			user.Name,
+		),
+	)
+
+	if err != nil {
+		fmt.Println("Email error:", err)
 	}
 
 	return user, nil

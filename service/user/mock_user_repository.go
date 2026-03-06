@@ -63,6 +63,21 @@ func (mr *MockRepositoryMockRecorder) FindByEmail(email interface{}) *gomock.Cal
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByEmail", reflect.TypeOf((*MockRepository)(nil).FindByEmail), email)
 }
 
+// FindByID mocks base method.
+func (m *MockRepository) FindByID(id string) (entity.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindByID", id)
+	ret0, _ := ret[0].(entity.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FindByID indicates an expected call of FindByID.
+func (mr *MockRepositoryMockRecorder) FindByID(id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByID", reflect.TypeOf((*MockRepository)(nil).FindByID), id)
+}
+
 // FindByName mocks base method.
 func (m *MockRepository) FindByName(name string) (entity.User, error) {
 	m.ctrl.T.Helper()
@@ -91,11 +106,4 @@ func (m *MockRepository) FindByPhone(phone string) (entity.User, error) {
 func (mr *MockRepositoryMockRecorder) FindByPhone(phone interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByPhone", reflect.TypeOf((*MockRepository)(nil).FindByPhone), phone)
-}
-
-func (m *MockRepository) FindByID(id string) (entity.User, error) {
-	return entity.User{
-		ID:    1,
-		Email: "test@mail.com",
-	}, nil
 }

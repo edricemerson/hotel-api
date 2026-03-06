@@ -7,7 +7,7 @@ import (
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
 )
 
-func SendEmail(toEmail string, subject string, body string) error {
+var SendEmail = func(toEmail string, subject string, body string) error {
 
 	from := mail.NewEmail("Hotel API", os.Getenv("EMAIL_SENDER"))
 	to := mail.NewEmail("", toEmail)
