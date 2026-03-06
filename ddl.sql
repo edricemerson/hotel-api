@@ -9,16 +9,15 @@ CREATE TABLE project_users (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE project_rooms (
+CREATE TABLE project_rooms ( 
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     room_number VARCHAR(20) NOT NULL,
     room_type VARCHAR(50),
-    price DECIMAL(10,2) NOT NULL,
-    capacity INT NOT NULL,
-    status VARCHAR(20) DEFAULT 'available',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-);
+    price DECIMAL(10,2) NOT NULL, 
+    capacity INT NOT NULL, 
+    status VARCHAR(20) DEFAULT 'available', 
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP );
 
 CREATE TABLE project_bookings (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
