@@ -30,6 +30,7 @@ import (
 
 func main() {
 
+	// load env (only for local)
 	if err := godotenv.Load(); err != nil {
 		log.Println("Running without .env (Railway environment)")
 	}
@@ -37,28 +38,45 @@ func main() {
 	// connect database
 	db := util.ConnectDB()
 
+	// repository
 	userRepo := repository.NewGormRepository(db)
-	userService := user.NewService(userRepo)
-	userHandler := handler.NewUserHandler(userService)
-
 	roomRepo := repository.NewRoomRepository(db)
-	roomService := room.NewService(roomRepo)
-	roomHandler := handler.NewRoomHandler(roomService)
-
 	bookRepo := repository.NewBookingRepository(db)
+
+	// service
+	userService := user.NewService(userRepo)
+	roomService := room.NewService(roomRepo)
 	bookingService := booking.NewService(bookRepo, roomRepo, userRepo)
+
+	// handler
+	userHandler := handler.NewUserHandler(userService)
+	roomHandler := handler.NewRoomHandler(roomService)
 	bookingHandler := handler.NewBookingHandler(bookingService)
 
+	// echo instance
 	e := echo.New()
 
-	// Swagger route for Echo v4
+	// health check
+	e.GET("/", func(c echo.Context) error {
+		return c.JSON(200, map[string]string{
+			"message": "Hotel API running",
+		})
+	})
+
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
 
-	//public route
 	e.POST("/register", userHandler.Register)
 	e.POST("/login", userHandler.Login)
 
-	// admin route
+	auth := e.Group("")
+	auth.Use(util.JWTMiddleware)
+
+	auth.GET("/rooms", roomHandler.GetRooms)
+	auth.GET("/rooms/:id", roomHandler.GetRoomByID)
+
+	auth.POST("/bookings", bookingHandler.CreateBooking)
+	auth.GET("/bookings", bookingHandler.GetMyBookings)
+
 	admin := e.Group("")
 	admin.Use(util.JWTMiddleware)
 	admin.Use(util.AdminOnly)
@@ -70,16 +88,6 @@ func main() {
 	admin.GET("/bookings/:id", bookingHandler.GetBookingByID)
 	admin.PUT("/bookings/:id", bookingHandler.UpdateBooking)
 	admin.DELETE("/bookings/:id", bookingHandler.DeleteBooking)
-
-	// authenticated route
-	auth := e.Group("")
-	auth.Use(util.JWTMiddleware)
-
-	auth.GET("/rooms", roomHandler.GetRooms)
-	auth.GET("/rooms/:id", roomHandler.GetRoomByID)
-
-	auth.POST("/bookings", bookingHandler.CreateBooking)
-	auth.GET("/bookings", bookingHandler.GetMyBookings)
 
 	port := os.Getenv("PORT")
 	if port == "" {
