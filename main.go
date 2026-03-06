@@ -6,6 +6,7 @@ import (
 
 	"hotel-api/handler"
 	"hotel-api/repository"
+	"hotel-api/service/booking"
 	"hotel-api/service/room"
 	"hotel-api/service/user"
 	"hotel-api/util"
@@ -25,6 +26,10 @@ func main() {
 	roomService := room.NewService(roomRepo)
 	roomHandler := handler.NewRoomHandler(roomService)
 
+	bookRepo := repository.NewBookingRepository(db)
+	bookingService := booking.NewService(bookRepo, roomRepo)
+	bookingHandler := handler.NewBookingHandler(bookingService)
+
 	e := echo.New()
 
 	//public route
@@ -40,14 +45,19 @@ func main() {
 	admin.PUT("/rooms/:id", roomHandler.UpdateRoom)
 	admin.DELETE("/rooms/:id", roomHandler.DeleteRoom)
 
+	admin.GET("/bookings/:id", bookingHandler.GetBookingByID)
+	admin.PUT("/bookings/:id", bookingHandler.UpdateBooking)
+	admin.DELETE("/bookings/:id", bookingHandler.DeleteBooking)
+
 	// authenticated route
 	auth := e.Group("")
 	auth.Use(util.JWTMiddleware)
 
 	auth.GET("/rooms", roomHandler.GetRooms)
 	auth.GET("/rooms/:id", roomHandler.GetRoomByID)
-	auth.POST("", bookingHandler.CreateBooking)
-	auth.GET("", bookingHandler.GetMyBookings)
+
+	auth.POST("/bookings", bookingHandler.CreateBooking)
+	auth.GET("/bookings", bookingHandler.GetMyBookings)
 
 	port := os.Getenv("PORT")
 
