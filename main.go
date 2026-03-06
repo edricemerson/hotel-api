@@ -1,7 +1,7 @@
 // @title Hotel API
 // @version 1.0
 // @description A comprehensive Hotel Management API with user authentication, room management, and booking system
-// @host localhost:8080
+// @host
 // @basePath /api
 // @securityDefinitions.apikey Bearer
 // @in header
@@ -30,9 +30,8 @@ import (
 
 func main() {
 
-	err := godotenv.Load()
-	if err != nil {
-		log.Println("No .env file found")
+	if err := godotenv.Load(); err != nil {
+		log.Println("Running without .env (Railway environment)")
 	}
 
 	// connect database
@@ -83,6 +82,9 @@ func main() {
 	auth.GET("/bookings", bookingHandler.GetMyBookings)
 
 	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
 
 	log.Println("Server running on port", port)
 
