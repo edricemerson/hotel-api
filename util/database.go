@@ -12,12 +12,15 @@ import (
 
 func ConnectDB() *gorm.DB {
 
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error env")
+	if err := godotenv.Load(); err != nil {
+		log.Println("Running without .env (Railway environment)")
 	}
 
 	dsn := os.Getenv("DB_URL")
+
+	if dsn == "" {
+		log.Fatal("DB_URL environment variable not set")
+	}
 
 	db, err := gorm.Open(postgres.New(postgres.Config{
 		DSN:                  dsn,
@@ -28,7 +31,7 @@ func ConnectDB() *gorm.DB {
 		log.Fatal("fail connect:", err)
 	}
 
-	log.Println("Connected")
+	log.Println("Connected to database")
 
 	return db
 }
